@@ -15,5 +15,7 @@ namespace SPM_Backend.Models
 
         [MaxLength(250)]
         public string? Description { get; set; }
+
+        public ICollection<SPM_UserRole> UserRoles { get; set; } = new List<SPM_UserRole>();
     }
 }

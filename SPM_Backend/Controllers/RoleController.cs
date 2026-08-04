@@ -51,8 +51,11 @@ public class RolesController : ControllerBase
             return BadRequest();
 
         var oldRole = await _context.Roles.FindAsync(id);
+        if (oldRole == null)
+            return NotFound();
 
         oldRole.RoleName = role.RoleName;
+        oldRole.Description = role.Description;
         await _context.SaveChangesAsync();
 
         return NoContent();

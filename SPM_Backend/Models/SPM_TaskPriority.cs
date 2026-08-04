@@ -17,5 +17,8 @@ namespace SPM_Backend.Models
         [MaxLength(20)]
         [Column("TaskPriortyCssClass")]
         public string TaskPriortyCssClass { get; set; } = null!;
+
+        // Inverse Navigation Properties
+        public ICollection<SPM_Task> Tasks { get; set; } = new List<SPM_Task>();
     }
 }

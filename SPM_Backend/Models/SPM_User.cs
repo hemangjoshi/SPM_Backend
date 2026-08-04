@@ -43,5 +43,14 @@ namespace SPM_Backend.Models
         public bool IsActive { get; set; }
 
         public bool? IsDeleted { get; set; }
+
+        // Inverse Navigation Properties
+        public ICollection<SPM_UserRole> UserRoles { get; set; } = new List<SPM_UserRole>();
+
+        [InverseProperty(nameof(SPM_ProjectAllocation.Student))]
+        public ICollection<SPM_ProjectAllocation> StudentAllocations { get; set; } = new List<SPM_ProjectAllocation>();
+
+        [InverseProperty(nameof(SPM_ProjectAllocation.Faculty))]
+        public ICollection<SPM_ProjectAllocation> FacultyAllocations { get; set; } = new List<SPM_ProjectAllocation>();
     }
 }

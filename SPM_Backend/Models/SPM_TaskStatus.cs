@@ -16,5 +16,8 @@ namespace SPM_Backend.Models
         [Required]
         [MaxLength(100)]
         public string TaskStatusCssClass { get; set; } = null!;
+
+        // Inverse Navigation Properties
+        public ICollection<SPM_Task> Tasks { get; set; } = new List<SPM_Task>();
     }
 }

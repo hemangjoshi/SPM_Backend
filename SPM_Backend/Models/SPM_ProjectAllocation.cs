@@ -51,5 +51,7 @@ namespace SPM_Backend.Models
 
         [MaxLength(1)]
         public string? OverAllGrade { get; set; }
+
+        public ICollection<SPM_Task> Tasks { get; set; } = new List<SPM_Task>();
     }
 }

@@ -14,5 +14,7 @@ namespace SPM_Backend.Models
         public string ProjectTitle { get; set; } = null!;
 
         public string? Description { get; set; }
+
+        public ICollection<SPM_ProjectAllocation> ProjectAllocations { get; set; } = new List<SPM_ProjectAllocation>();
     }
 }

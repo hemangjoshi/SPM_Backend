@@ -2,14 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPM_Backend.Data;
 using SPM_Backend.Models;
+using System.Data;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserRolesController : ControllerBase
+public class UserRoleController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public UserRolesController(AppDbContext context)
+    public UserRoleController(AppDbContext context)
     {
         _context = context;
     }
@@ -25,7 +26,10 @@ public class UserRolesController : ControllerBase
     public async Task<IActionResult> GetUserRole(int id)
     {
         var userRole = await _context.UserRoles.FindAsync(id);
-        if (userRole == null) return NotFound();
+
+        if (userRole == null)
+            return NotFound();
+
         return Ok(userRole);
     }
 
@@ -34,16 +38,19 @@ public class UserRolesController : ControllerBase
     {
         _context.UserRoles.Add(userRole);
         await _context.SaveChangesAsync();
+
         return Ok(userRole);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, SPM_UserRole userRole)
     {
-        if (id != userRole.RolePermissionID) return BadRequest();
+        if (id != userRole.RolePermissionID)
+            return BadRequest();
 
         var existing = await _context.UserRoles.FindAsync(id);
-        if (existing == null) return NotFound();
+        if (existing == null)
+            return NotFound();
 
         existing.RoleID = userRole.RoleID;
         existing.UserID = userRole.UserID;
@@ -56,10 +63,13 @@ public class UserRolesController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var userRole = await _context.UserRoles.FindAsync(id);
-        if (userRole == null) return NotFound();
+
+        if (userRole == null)
+            return NotFound();
 
         _context.UserRoles.Remove(userRole);
         await _context.SaveChangesAsync();
+
         return Ok();
     }
 }

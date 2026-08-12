@@ -2,14 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPM_Backend.Data;
 using SPM_Backend.Models;
+using System.Data;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UserController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public UsersController(AppDbContext context)
+    public UserController(AppDbContext context)
     {
         _context = context;
     }
@@ -25,7 +26,10 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user == null) return NotFound();
+
+        if (user == null)
+            return NotFound();
+
         return Ok(user);
     }
 
@@ -34,16 +38,19 @@ public class UsersController : ControllerBase
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+
         return Ok(user);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, SPM_User user)
     {
-        if (id != user.UserID) return BadRequest();
+        if (id != user.UserID)
+            return BadRequest();
 
         var existing = await _context.Users.FindAsync(id);
-        if (existing == null) return NotFound();
+        if (existing == null)
+            return NotFound();
 
         existing.UserTypeID = user.UserTypeID;
         existing.FullName = user.FullName;
@@ -63,10 +70,13 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user == null) return NotFound();
+
+        if (user == null)
+            return NotFound();
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+
         return Ok();
     }
 }

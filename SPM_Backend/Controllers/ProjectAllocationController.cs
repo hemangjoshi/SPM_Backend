@@ -2,14 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPM_Backend.Data;
 using SPM_Backend.Models;
+using System.Data;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProjectAllocationsController : ControllerBase
+public class ProjectAllocationController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public ProjectAllocationsController(AppDbContext context)
+    public ProjectAllocationController(AppDbContext context)
     {
         _context = context;
     }
@@ -25,7 +26,10 @@ public class ProjectAllocationsController : ControllerBase
     public async Task<IActionResult> GetProjectAllocation(int id)
     {
         var allocation = await _context.ProjectAllocations.FindAsync(id);
-        if (allocation == null) return NotFound();
+
+        if (allocation == null)
+            return NotFound();
+
         return Ok(allocation);
     }
 
@@ -34,16 +38,19 @@ public class ProjectAllocationsController : ControllerBase
     {
         _context.ProjectAllocations.Add(allocation);
         await _context.SaveChangesAsync();
+
         return Ok(allocation);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, SPM_ProjectAllocation allocation)
     {
-        if (id != allocation.ProjectAllocationID) return BadRequest();
+        if (id != allocation.ProjectAllocationID)
+            return BadRequest();
 
         var existing = await _context.ProjectAllocations.FindAsync(id);
-        if (existing == null) return NotFound();
+        if (existing == null)
+            return NotFound();
 
         existing.ProjectID = allocation.ProjectID;
         existing.StudentID = allocation.StudentID;
@@ -64,10 +71,13 @@ public class ProjectAllocationsController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var allocation = await _context.ProjectAllocations.FindAsync(id);
-        if (allocation == null) return NotFound();
+
+        if (allocation == null)
+            return NotFound();
 
         _context.ProjectAllocations.Remove(allocation);
         await _context.SaveChangesAsync();
+
         return Ok();
     }
 }

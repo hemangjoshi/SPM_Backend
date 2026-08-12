@@ -16,7 +16,6 @@ namespace SPM_Backend.Models
         [MaxLength(250)]
         public string? Description { get; set; }
 
-        // Inverse Navigation Properties
         public ICollection<SPM_User> Users { get; set; } = new List<SPM_User>();
     }
 }

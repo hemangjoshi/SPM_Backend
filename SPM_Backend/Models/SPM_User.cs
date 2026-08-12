@@ -44,7 +44,6 @@ namespace SPM_Backend.Models
 
         public bool? IsDeleted { get; set; }
 
-        // Inverse Navigation Properties
         public ICollection<SPM_UserRole> UserRoles { get; set; } = new List<SPM_UserRole>();
 
         [InverseProperty(nameof(SPM_ProjectAllocation.Student))]

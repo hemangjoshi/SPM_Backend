@@ -333,19 +333,19 @@ namespace SPM_Backend.Migrations
             modelBuilder.Entity("SPM_Backend.Models.SPM_ProjectAllocation", b =>
                 {
                     b.HasOne("SPM_Backend.Models.SPM_User", "Faculty")
-                        .WithMany()
+                        .WithMany("FacultyAllocations")
                         .HasForeignKey("FacultyID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SPM_Backend.Models.SPM_ProjectMaster", "Project")
-                        .WithMany()
+                        .WithMany("ProjectAllocations")
                         .HasForeignKey("ProjectID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SPM_Backend.Models.SPM_User", "Student")
-                        .WithMany()
+                        .WithMany("StudentAllocations")
                         .HasForeignKey("StudentID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -360,19 +360,19 @@ namespace SPM_Backend.Migrations
             modelBuilder.Entity("SPM_Backend.Models.SPM_Task", b =>
                 {
                     b.HasOne("SPM_Backend.Models.SPM_ProjectAllocation", "ProjectAllocation")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("ProjectAllocationID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SPM_Backend.Models.SPM_TaskPriority", "TaskPriority")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("TaskPriorityID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SPM_Backend.Models.SPM_TaskStatus", "TaskStatus")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("TaskStatusID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -387,7 +387,7 @@ namespace SPM_Backend.Migrations
             modelBuilder.Entity("SPM_Backend.Models.SPM_User", b =>
                 {
                     b.HasOne("SPM_Backend.Models.SPM_UserType", "UserType")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("UserTypeID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -398,13 +398,13 @@ namespace SPM_Backend.Migrations
             modelBuilder.Entity("SPM_Backend.Models.SPM_UserRole", b =>
                 {
                     b.HasOne("SPM_Backend.Models.SPM_Role", "Role")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SPM_Backend.Models.SPM_User", "User")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -412,6 +412,45 @@ namespace SPM_Backend.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_ProjectAllocation", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_ProjectMaster", b =>
+                {
+                    b.Navigation("ProjectAllocations");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_Role", b =>
+                {
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_TaskPriority", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_TaskStatus", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_User", b =>
+                {
+                    b.Navigation("FacultyAllocations");
+
+                    b.Navigation("StudentAllocations");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("SPM_Backend.Models.SPM_UserType", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

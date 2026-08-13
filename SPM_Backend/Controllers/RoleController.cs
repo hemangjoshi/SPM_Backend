@@ -22,7 +22,7 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetRole(int id)
     {
         var role = await _context.Roles.FindAsync(id);
@@ -44,7 +44,7 @@ public class RolesController : ControllerBase
         return Ok(role);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_Role role)
     {
         if (id != role.RoleID)
@@ -61,7 +61,7 @@ public class RolesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var role = await _context.Roles.FindAsync(id);

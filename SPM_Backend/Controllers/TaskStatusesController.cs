@@ -21,7 +21,7 @@ public class TaskStatusesController : ControllerBase
         return Ok(statuses);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetTaskStatus(int id)
     {
         var status = await _context.TaskStatuses.FindAsync(id);
@@ -37,7 +37,7 @@ public class TaskStatusesController : ControllerBase
         return Ok(taskStatus);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_TaskStatus taskStatus)
     {
         if (id != taskStatus.TaskStatusID) return BadRequest();
@@ -52,7 +52,7 @@ public class TaskStatusesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var status = await _context.TaskStatuses.FindAsync(id);

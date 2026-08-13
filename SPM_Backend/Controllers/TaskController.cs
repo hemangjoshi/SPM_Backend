@@ -22,7 +22,7 @@ public class TaskController : ControllerBase
         return Ok(tasks);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetTask(int id)
     {
         var task = await _context.Tasks.FindAsync(id);
@@ -42,7 +42,7 @@ public class TaskController : ControllerBase
         return Ok(task);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_Task task)
     {
         if (id != task.TaskID)
@@ -72,7 +72,7 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var task = await _context.Tasks.FindAsync(id);

@@ -22,7 +22,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -42,7 +42,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_User user)
     {
         if (id != user.UserID)
@@ -66,7 +66,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var user = await _context.Users.FindAsync(id);

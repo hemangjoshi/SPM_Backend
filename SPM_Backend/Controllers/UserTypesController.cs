@@ -21,7 +21,7 @@ public class UserTypesController : ControllerBase
         return Ok(userTypes);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetUserType(int id)
     {
         var userType = await _context.UserTypes.FindAsync(id);
@@ -37,7 +37,7 @@ public class UserTypesController : ControllerBase
         return Ok(userType);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_UserType userType)
     {
         if (id != userType.UserTypeID) return BadRequest();
@@ -52,7 +52,7 @@ public class UserTypesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var userType = await _context.UserTypes.FindAsync(id);

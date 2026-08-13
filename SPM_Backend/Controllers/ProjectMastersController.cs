@@ -21,7 +21,7 @@ public class ProjectMastersController : ControllerBase
         return Ok(projects);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProjectMaster(int id)
     {
         var project = await _context.ProjectMasters.FindAsync(id);
@@ -37,7 +37,7 @@ public class ProjectMastersController : ControllerBase
         return Ok(project);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_ProjectMaster project)
     {
         if (id != project.ProjectID) return BadRequest();
@@ -52,7 +52,7 @@ public class ProjectMastersController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var project = await _context.ProjectMasters.FindAsync(id);

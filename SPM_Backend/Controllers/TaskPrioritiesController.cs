@@ -21,7 +21,7 @@ public class TaskPrioritiesController : ControllerBase
         return Ok(priorities);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetTaskPriority(int id)
     {
         var priority = await _context.TaskPriorities.FindAsync(id);
@@ -37,7 +37,7 @@ public class TaskPrioritiesController : ControllerBase
         return Ok(taskPriority);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, SPM_TaskPriority taskPriority)
     {
         if (id != taskPriority.TaskPriorityID) return BadRequest();
@@ -52,7 +52,7 @@ public class TaskPrioritiesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var priority = await _context.TaskPriorities.FindAsync(id);

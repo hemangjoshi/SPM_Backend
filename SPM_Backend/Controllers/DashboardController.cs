@@ -33,8 +33,7 @@ public class DashboardController : ControllerBase
     [HttpGet("total-faculty")]
     public async Task<IActionResult> TotalFaculty()
     {
-        var totalFaculty = await _context.Users
-            .CountAsync(x => x.UserType.UserTypeName == "Faculty");
+        var totalFaculty = await _context.Users.CountAsync(x => x.UserType.UserTypeName == "Faculty");
 
         return Ok(new ApiResponse<object>
         {
@@ -199,16 +198,13 @@ public class DashboardController : ControllerBase
     {
         var result = await _context.Tasks
             .Where(t =>
-                t.TaskDueDate < DateTime.Now &&
-                t.TaskStatus.TaskStatusName != "Completed")
+                t.TaskDueDate < DateTime.Now && t.TaskStatus.TaskStatusName != "Completed")
             .Select(t => new
             {
-                t.TaskID,
-                t.TaskTitle,
+                t.TaskID,t.TaskTitle,
                 Student     = t.ProjectAllocation.Student.FullName,
                 Faculty     = t.ProjectAllocation.Faculty.FullName,
-                t.TaskDueDate,
-                DaysOverdue = EF.Functions.DateDiffDay(t.TaskDueDate, DateTime.Now)
+                t.TaskDueDate,DaysOverdue = EF.Functions.DateDiffDay(t.TaskDueDate, DateTime.Now)
             })
             .ToListAsync();
 
@@ -226,8 +222,7 @@ public class DashboardController : ControllerBase
     {
         var result = await _context.Tasks
             .Where(t =>
-                t.NextFollowUpDate >= DateTime.Today &&
-                t.NextFollowUpDate <= DateTime.Today.AddDays(7))
+                t.NextFollowUpDate >= DateTime.Today && t.NextFollowUpDate <= DateTime.Today.AddDays(7))
             .Select(t => new
             {
                 t.TaskTitle,

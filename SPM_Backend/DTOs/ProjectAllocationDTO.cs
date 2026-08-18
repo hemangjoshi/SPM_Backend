@@ -5,6 +5,7 @@ namespace SPM_Backend.DTOs
         public int ProjectAllocationID { get; set; }
 
         public int ProjectID { get; set; }
+        
         public string? ProjectTitle { get; set; }
 
         public int StudentID { get; set; }

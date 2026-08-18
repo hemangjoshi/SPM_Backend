@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SPM_Backend.Common;
 using SPM_Backend.Data;
+using SPM_Backend.DTOs;
 using SPM_Backend.Models;
-using System.Data;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -18,71 +19,228 @@ public class TaskController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetTasks()
     {
-        var tasks = await _context.Tasks.ToListAsync();
-        return Ok(tasks);
+        var tasks = await _context.Tasks
+            .Include(x => x.ProjectAllocation).ThenInclude(x => x!.Project)
+            .Include(x => x.ProjectAllocation).ThenInclude(x => x!.Student)
+            .Include(x => x.TaskStatus)
+            .Include(x => x.TaskPriority)
+            .Select(x => new TaskDTO
+            {
+                TaskID              = x.TaskID,
+                ProjectAllocationID = x.ProjectAllocationID,
+                ProjectTitle        = x.ProjectAllocation!.Project!.ProjectTitle,
+                StudentName         = x.ProjectAllocation!.Student!.FullName,
+                TaskTitle           = x.TaskTitle,
+                TaskDescription     = x.TaskDescription,
+                TaskStatusID        = x.TaskStatusID,
+                TaskStatusName      = x.TaskStatus!.TaskStatusName,
+                TaskPriorityID      = x.TaskPriorityID,
+                TaskPriorityName    = x.TaskPriority!.TaskPriorityName,
+                AssignedScore       = x.AssignedScore,
+                EarnedScore         = x.EarnedScore,
+                ProgressPercentage  = x.ProgressPercentage,
+                TaskAssignedDate    = x.TaskAssignedDate,
+                TaskStartDate       = x.TaskStartDate,
+                TaskDueDate         = x.TaskDueDate,
+                TaskCompletedDate   = x.TaskCompletedDate,
+                NextFollowUpDate    = x.NextFollowUpDate,
+                FacultyRemarks      = x.FacultyRemarks,
+                StudentRemarks      = x.StudentRemarks
+            })
+            .ToListAsync();
+
+        return Ok(new ApiResponse<List<TaskDTO>>
+        {
+            Success = true,
+            Message = "Tasks Retrieved Successfully",
+            Data    = tasks
+        });
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetTask(int id)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        var task = await _context.Tasks
+            .Include(x => x.ProjectAllocation).ThenInclude(x => x!.Project)
+            .Include(x => x.ProjectAllocation).ThenInclude(x => x!.Student)
+            .Include(x => x.TaskStatus)
+            .Include(x => x.TaskPriority)
+            .Where(x => x.TaskID == id)
+            .Select(x => new TaskDTO
+            {
+                TaskID              = x.TaskID,
+                ProjectAllocationID = x.ProjectAllocationID,
+                ProjectTitle        = x.ProjectAllocation!.Project!.ProjectTitle,
+                StudentName         = x.ProjectAllocation!.Student!.FullName,
+                TaskTitle           = x.TaskTitle,
+                TaskDescription     = x.TaskDescription,
+                TaskStatusID        = x.TaskStatusID,
+                TaskStatusName      = x.TaskStatus!.TaskStatusName,
+                TaskPriorityID      = x.TaskPriorityID,
+                TaskPriorityName    = x.TaskPriority!.TaskPriorityName,
+                AssignedScore       = x.AssignedScore,
+                EarnedScore         = x.EarnedScore,
+                ProgressPercentage  = x.ProgressPercentage,
+                TaskAssignedDate    = x.TaskAssignedDate,
+                TaskStartDate       = x.TaskStartDate,
+                TaskDueDate         = x.TaskDueDate,
+                TaskCompletedDate   = x.TaskCompletedDate,
+                NextFollowUpDate    = x.NextFollowUpDate,
+                FacultyRemarks      = x.FacultyRemarks,
+                StudentRemarks      = x.StudentRemarks
+            })
+            .FirstOrDefaultAsync();
 
         if (task == null)
-            return NotFound();
+            return NotFound(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Task Not Found",
+                Errors  = new List<string> { $"No task found with Id {id}" }
+            });
 
-        return Ok(task);
+        return Ok(new ApiResponse<TaskDTO>
+        {
+            Success = true,
+            Message = "Task Retrieved Successfully",
+            Data    = task
+        });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(SPM_Task task)
+    public async Task<IActionResult> Create(TaskDTO dto)
     {
-        _context.Tasks.Add(task);
-        await _context.SaveChangesAsync();
+        try
+        {
+            var task = new SPM_Task
+            {
+                ProjectAllocationID = dto.ProjectAllocationID,
+                TaskTitle           = dto.TaskTitle!,
+                TaskDescription     = dto.TaskDescription,
+                TaskStatusID        = dto.TaskStatusID,
+                TaskPriorityID      = dto.TaskPriorityID,
+                AssignedScore       = dto.AssignedScore,
+                EarnedScore         = dto.EarnedScore,
+                ProgressPercentage  = dto.ProgressPercentage,
+                TaskAssignedDate    = dto.TaskAssignedDate,
+                TaskStartDate       = dto.TaskStartDate,
+                TaskDueDate         = dto.TaskDueDate,
+                TaskCompletedDate   = dto.TaskCompletedDate,
+                NextFollowUpDate    = dto.NextFollowUpDate,
+                FacultyRemarks      = dto.FacultyRemarks,
+                StudentRemarks      = dto.StudentRemarks
+            };
 
-        return Ok(task);
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+
+            return Ok(new ApiResponse<TaskDTO>
+            {
+                Success = true,
+                Message = "Task Added Successfully",
+                Data    = dto
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while adding task",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, SPM_Task task)
+    public async Task<IActionResult> Update(int id, TaskDTO dto)
     {
-        if (id != task.TaskID)
-            return BadRequest();
+        if (id != dto.TaskID)
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "ID Mismatch",
+                Errors  = new List<string> { "Route ID does not match the DTO TaskID" }
+            });
 
-        var existing = await _context.Tasks.FindAsync(id);
-        if (existing == null)
-            return NotFound();
+        try
+        {
+            var existing = await _context.Tasks.FindAsync(id);
+            if (existing == null)
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Task Not Found",
+                    Errors  = new List<string> { $"No task found with Id {id}" }
+                });
 
-        existing.ProjectAllocationID = task.ProjectAllocationID;
-        existing.TaskTitle = task.TaskTitle;
-        existing.TaskDescription = task.TaskDescription;
-        existing.TaskStatusID = task.TaskStatusID;
-        existing.TaskPriorityID = task.TaskPriorityID;
-        existing.AssignedScore = task.AssignedScore;
-        existing.EarnedScore = task.EarnedScore;
-        existing.ProgressPercentage = task.ProgressPercentage;
-        existing.TaskAssignedDate = task.TaskAssignedDate;
-        existing.TaskStartDate = task.TaskStartDate;
-        existing.TaskDueDate = task.TaskDueDate;
-        existing.TaskCompletedDate = task.TaskCompletedDate;
-        existing.NextFollowUpDate = task.NextFollowUpDate;
-        existing.FacultyRemarks = task.FacultyRemarks;
-        existing.StudentRemarks = task.StudentRemarks;
-        await _context.SaveChangesAsync();
+            existing.ProjectAllocationID = dto.ProjectAllocationID;
+            existing.TaskTitle           = dto.TaskTitle!;
+            existing.TaskDescription     = dto.TaskDescription;
+            existing.TaskStatusID        = dto.TaskStatusID;
+            existing.TaskPriorityID      = dto.TaskPriorityID;
+            existing.AssignedScore       = dto.AssignedScore;
+            existing.EarnedScore         = dto.EarnedScore;
+            existing.ProgressPercentage  = dto.ProgressPercentage;
+            existing.TaskAssignedDate    = dto.TaskAssignedDate;
+            existing.TaskStartDate       = dto.TaskStartDate;
+            existing.TaskDueDate         = dto.TaskDueDate;
+            existing.TaskCompletedDate   = dto.TaskCompletedDate;
+            existing.NextFollowUpDate    = dto.NextFollowUpDate;
+            existing.FacultyRemarks      = dto.FacultyRemarks;
+            existing.StudentRemarks      = dto.StudentRemarks;
+            await _context.SaveChangesAsync();
 
-        return NoContent();
+            return Ok(new ApiResponse<TaskDTO>
+            {
+                Success = true,
+                Message = "Task Updated Successfully",
+                Data    = dto
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while updating task",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        try
+        {
+            var task = await _context.Tasks.FindAsync(id);
 
-        if (task == null)
-            return NotFound();
+            if (task == null)
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Task Not Found",
+                    Errors  = new List<string> { $"No task found with Id {id}" }
+                });
 
-        _context.Tasks.Remove(task);
-        await _context.SaveChangesAsync();
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
 
-        return Ok();
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Message = "Task Deleted Successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while deleting task",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 }

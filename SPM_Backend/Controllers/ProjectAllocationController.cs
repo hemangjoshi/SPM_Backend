@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SPM_Backend.Common;
 using SPM_Backend.Data;
 using SPM_Backend.DTOs;
 using SPM_Backend.Models;
@@ -41,7 +42,12 @@ public class ProjectAllocationController : ControllerBase
             })
             .ToListAsync();
 
-        return Ok(allocations);
+        return Ok(new ApiResponse<List<ProjectAllocationDTO>>
+        {
+            Success = true,
+            Message = "Project Allocations Retrieved Successfully",
+            Data    = allocations
+        });
     }
 
     [HttpGet("{id:int}")]
@@ -72,71 +78,145 @@ public class ProjectAllocationController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (allocation == null)
-            return NotFound();
+            return NotFound(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Project Allocation Not Found",
+                Errors  = new List<string> { $"No project allocation found with Id {id}" }
+            });
 
-        return Ok(allocation);
+        return Ok(new ApiResponse<ProjectAllocationDTO>
+        {
+            Success = true,
+            Message = "Project Allocation Retrieved Successfully",
+            Data    = allocation
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(ProjectAllocationDTO dto)
     {
-        var allocation = new SPM_ProjectAllocation
+        try
         {
-            ProjectID           = dto.ProjectID,
-            StudentID           = dto.StudentID,
-            FacultyID           = dto.FacultyID,
-            AssignedDate        = dto.AssignedDate,
-            ProjectStartDate    = dto.ProjectStartDate,
-            ProjectEndDate      = dto.ProjectEndDate,
-            TotalTasksGiven     = dto.TotalTasksGiven,
-            TotalCompletedTasks = dto.TotalCompletedTasks,
-            ProgressPercentage  = dto.ProgressPercentage,
-            OverAllGrade        = dto.OverAllGrade
-        };
+            var allocation = new SPM_ProjectAllocation
+            {
+                ProjectID           = dto.ProjectID,
+                StudentID           = dto.StudentID,
+                FacultyID           = dto.FacultyID,
+                AssignedDate        = dto.AssignedDate,
+                ProjectStartDate    = dto.ProjectStartDate,
+                ProjectEndDate      = dto.ProjectEndDate,
+                TotalTasksGiven     = dto.TotalTasksGiven,
+                TotalCompletedTasks = dto.TotalCompletedTasks,
+                ProgressPercentage  = dto.ProgressPercentage,
+                OverAllGrade        = dto.OverAllGrade
+            };
 
-        _context.ProjectAllocations.Add(allocation);
-        await _context.SaveChangesAsync();
+            _context.ProjectAllocations.Add(allocation);
+            await _context.SaveChangesAsync();
 
-        return Ok(new { Status = "Success", Message = "Record Inserted" });
+            return Ok(new ApiResponse<ProjectAllocationDTO>
+            {
+                Success = true,
+                Message = "Project Allocation Added Successfully",
+                Data    = dto
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while adding project allocation",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, ProjectAllocationDTO dto)
     {
         if (id != dto.ProjectAllocationID)
-            return BadRequest();
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "ID Mismatch",
+                Errors  = new List<string> { "Route ID does not match the DTO ProjectAllocationID" }
+            });
 
-        var existing = await _context.ProjectAllocations.FindAsync(id);
-        if (existing == null)
-            return NotFound();
+        try
+        {
+            var existing = await _context.ProjectAllocations.FindAsync(id);
+            if (existing == null)
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Project Allocation Not Found",
+                    Errors  = new List<string> { $"No project allocation found with Id {id}" }
+                });
 
-        existing.ProjectID           = dto.ProjectID;
-        existing.StudentID           = dto.StudentID;
-        existing.FacultyID           = dto.FacultyID;
-        existing.AssignedDate        = dto.AssignedDate;
-        existing.ProjectStartDate    = dto.ProjectStartDate;
-        existing.ProjectEndDate      = dto.ProjectEndDate;
-        existing.TotalTasksGiven     = dto.TotalTasksGiven;
-        existing.TotalCompletedTasks = dto.TotalCompletedTasks;
-        existing.ProgressPercentage  = dto.ProgressPercentage;
-        existing.OverAllGrade        = dto.OverAllGrade;
+            existing.ProjectID           = dto.ProjectID;
+            existing.StudentID           = dto.StudentID;
+            existing.FacultyID           = dto.FacultyID;
+            existing.AssignedDate        = dto.AssignedDate;
+            existing.ProjectStartDate    = dto.ProjectStartDate;
+            existing.ProjectEndDate      = dto.ProjectEndDate;
+            existing.TotalTasksGiven     = dto.TotalTasksGiven;
+            existing.TotalCompletedTasks = dto.TotalCompletedTasks;
+            existing.ProgressPercentage  = dto.ProgressPercentage;
+            existing.OverAllGrade        = dto.OverAllGrade;
+            await _context.SaveChangesAsync();
 
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+            return Ok(new ApiResponse<ProjectAllocationDTO>
+            {
+                Success = true,
+                Message = "Project Allocation Updated Successfully",
+                Data    = dto
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while updating project allocation",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var allocation = await _context.ProjectAllocations.FindAsync(id);
+        try
+        {
+            var allocation = await _context.ProjectAllocations.FindAsync(id);
 
-        if (allocation == null)
-            return NotFound();
+            if (allocation == null)
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Project Allocation Not Found",
+                    Errors  = new List<string> { $"No project allocation found with Id {id}" }
+                });
 
-        _context.ProjectAllocations.Remove(allocation);
-        await _context.SaveChangesAsync();
+            _context.ProjectAllocations.Remove(allocation);
+            await _context.SaveChangesAsync();
 
-        return Ok();
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Message = "Project Allocation Deleted Successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Error occurred while deleting project allocation",
+                Errors  = new List<string> { ex.Message }
+            });
+        }
     }
 }
